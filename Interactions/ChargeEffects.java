@@ -1,4 +1,4 @@
-package Interactions;
+package interactions;
 
 public interface ChargeEffects {
     
