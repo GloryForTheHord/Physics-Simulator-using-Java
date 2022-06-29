@@ -12,9 +12,8 @@ import javax.swing.*;
 
 public class Renderer extends JPanel{
 
-
-    private final int WIDTH, HEIGHT;
-    private Vector<Entity> entityVector;
+    private final int            WIDTH, HEIGHT;
+    private       Vector<Entity> entityVector;
 
 
     public Renderer(String title, int width, int height){
@@ -51,10 +50,17 @@ public class Renderer extends JPanel{
         super.paint(g);
 
         Graphics2D g2D = (Graphics2D) g;
+        
         g2D.setColor(Color.RED);
 
         for (Entity entity : entityVector){
-            g2D.fillOval((int) entity.get_x(), (int) entity.get_y(), entity.get_radius(), entity.get_radius());
+            try{
+                g2D.setColor(Color.decode(entity.get_colorTag()));
+            }
+            catch(Exception e){
+                g2D.setColor(Color.RED);
+            }
+            g2D.fillOval((int) entity.get_x() - entity.get_radius(), HEIGHT - (int) entity.get_y() - entity.get_radius(), 2*entity.get_radius(), 2*entity.get_radius());
         }
     }
 }
