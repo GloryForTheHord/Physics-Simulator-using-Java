@@ -12,8 +12,8 @@ public class MoveableEntity extends Entity{
     private       Vec2D  resultingForce;
 
 
-    public MoveableEntity(String colorTag, double x, double y, int radius, double vx, double vy, double dt, double mass, double charge){
-        super(colorTag, x, y, radius, mass, charge);
+    public MoveableEntity(String colorTag, double x, double y, int radius, double vx, double vy, double dt, double mass, double charge, double bouncingFactor){
+        super(colorTag, x, y, radius, mass, charge, bouncingFactor);
         this.dt = dt;
         positionPrev = new Vec2D(x - vx*dt, y - vy*dt);
         resultingForce = new Vec2D(0, 0);
@@ -42,6 +42,6 @@ public class MoveableEntity extends Entity{
         Vec2D displacement = position.subtract(positionPrev);
         Vec2D ref = new Vec2D(xRef, yRef);
         position = position.subtract(ref).reflect(normal).add(ref);
-        positionPrev = position.subtract(displacement.reflect(normal));
+        positionPrev = position.subtract(displacement.reflect(normal).scale(bouncingFactor));
     }
 }

@@ -9,18 +9,20 @@ public class Entity{
 
     protected final String  colorTag;
     protected       Vec2D   position;
-    protected       double  mass, charge;
+    protected       double  mass, charge, bouncingFactor;
     protected       int     radius;
 
     
-    public Entity(String colorTag, double x, double y, int radius, double mass, double charge){
+    public Entity(String colorTag, double x, double y, int radius, double mass, double charge, double bouncingFactor){
         this.colorTag = colorTag;
         position = new Vec2D(x, y);
         this.radius = radius;
-        assert radius > 0 : "radius should be strictly greater than 0";
+        if(radius <= 0){ throw new AssertionError("radius should be strictly greater than 0"); }
         this.mass = mass;
-        assert mass > 0 : "mass should be strictly greater than 0";
+        if(mass <= 0){ throw new AssertionError("mass should be strictly greater than 0"); }
         this.charge = charge;
+        if(bouncingFactor < 0 || bouncingFactor > 1){ throw new AssertionError("bouncing factor should be in [0; 1]"); }
+        this.bouncingFactor = bouncingFactor;
     }
 
 
