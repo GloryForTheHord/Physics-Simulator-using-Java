@@ -21,7 +21,7 @@ public class MoveableEntity extends Entity{
 
 
     public Vec2D get_velocity(){
-        return position.add(positionPrev.scale(-1)).scale(1/dt).add(resultingForce.scale(dt/2/mass)); // (pos - posPrev)/dt + F/(2m) *dt
+        return position.subtract(positionPrev).scale(1/dt).add(resultingForce.scale(dt/2/mass)); // (pos - posPrev)/dt + F/(2m) *dt
     }
 
 
@@ -31,9 +31,17 @@ public class MoveableEntity extends Entity{
 
 
     public void update(){
-        Vec2D positionNext = position.scale(2).add(positionPrev.scale(-1)).add(resultingForce.scale(dt*dt/mass)); // posNext = 2*pos - posPrev + F/m *dt^2
+        Vec2D positionNext = position.scale(2).subtract(positionPrev).add(resultingForce.scale(dt*dt/mass)); // posNext = 2*pos - posPrev + F/m *dt^2
         positionPrev = position;
         position = positionNext;
         resultingForce = new Vec2D(0, 0);
+    }
+
+
+    public void collide_on_surface(double xRef, double yRef, Vec2D normal){
+        Vec2D displacement = position.subtract(positionPrev);
+        Vec2D ref = new Vec2D(xRef, yRef);
+        position = position.subtract(ref).reflect(normal).add(ref);
+        positionPrev = position.subtract(displacement.reflect(normal));
     }
 }

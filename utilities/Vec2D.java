@@ -65,4 +65,25 @@ public class Vec2D implements Cloneable{
     public boolean isZero(){
         return this.x == 0 && this.y == 0;
     }
+
+
+    public double dot(Vec2D vec){
+        return this.x * vec.x + this.y * vec.y;
+    }
+
+
+    public Vec2D reflect(Vec2D normal){
+        return this.subtract(normal.scale(2*this.dot(normal))); // v - 2(v.n) n
+    }
+
+
+    public double get_norm(){
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+
+    public Vec2D get_normalized(){
+        double norm = this.get_norm();
+        return new Vec2D(x/norm, y/norm);
+    }
 }
