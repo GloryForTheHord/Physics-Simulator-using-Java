@@ -8,13 +8,18 @@ import utilities.Vec2D;
 public class MoveableEntity extends Entity{
 
     private final double dt;
+    private final double mass, bouncingFactor;
     private       Vec2D  positionPrev;
     private       Vec2D  resultingForce;
 
 
     public MoveableEntity(String colorTag, double x, double y, int radius, double vx, double vy, double dt, double mass, double charge, double bouncingFactor){
-        super(colorTag, x, y, radius, mass, charge, bouncingFactor);
+        super(colorTag, x, y, radius, charge);
         this.dt = dt;
+        this.mass = mass;
+        if(mass <= 0){ throw new AssertionError("mass should be strictly greater than 0"); }
+        if(bouncingFactor < 0 || bouncingFactor > 1){ throw new AssertionError("bouncing factor should be in [0; 1]"); }
+        this.bouncingFactor = bouncingFactor;
         positionPrev = new Vec2D(x - vx*dt, y - vy*dt);
         resultingForce = new Vec2D(0, 0);
     }
@@ -22,6 +27,26 @@ public class MoveableEntity extends Entity{
 
     public Vec2D get_velocity(){
         return position.subtract(positionPrev).scale(1/dt).add(resultingForce.scale(dt/2/mass)); // (pos - posPrev)/dt + F/(2m) *dt
+    }
+
+
+    public Vec2D get_positionPrev(){
+        return (Vec2D) positionPrev.clone();
+    }
+
+
+    public void set_positionPrev(Vec2D positionPrev){
+        this.positionPrev = (Vec2D) positionPrev.clone();
+    }
+
+    
+    public double get_mass(){
+        return mass;
+    }
+
+    
+    public double get_bouncingFactor(){
+        return bouncingFactor;
     }
 
 
@@ -38,10 +63,10 @@ public class MoveableEntity extends Entity{
     }
 
 
-    public void collide_on_surface(double xRef, double yRef, Vec2D normal){
+    public void collide_on_surface(Vec2D positionCollisionOfCenter, Vec2D normal){
+        normal = normal.get_normalized();
         Vec2D displacement = position.subtract(positionPrev);
-        Vec2D ref = new Vec2D(xRef, yRef);
-        position = position.subtract(ref).reflect(normal).add(ref);
+        position = position.subtract(positionCollisionOfCenter).reflect(normal).add(positionCollisionOfCenter);
         positionPrev = position.subtract(displacement.reflect(normal).scale(bouncingFactor));
     }
 }

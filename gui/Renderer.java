@@ -60,7 +60,11 @@ public class Renderer extends JPanel{
             catch(Exception e){
                 g2D.setColor(Color.RED);
             }
-            g2D.fillOval((int) entity.get_x() - entity.get_radius(), HEIGHT - (int) entity.get_y() - entity.get_radius(), 2*entity.get_radius(), 2*entity.get_radius());
+
+            double x = entity.get_position().get_x();
+            double y = entity.get_position().get_y();
+
+            g2D.fillOval((int) x - entity.get_radius(), HEIGHT - (int) y - entity.get_radius(), 2*entity.get_radius(), 2*entity.get_radius());
         }
     }
 }

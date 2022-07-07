@@ -86,4 +86,17 @@ public class Vec2D implements Cloneable{
         double norm = this.get_norm();
         return new Vec2D(x/norm, y/norm);
     }
+
+
+    public Vec2D get_rotated_in_degrees(double angleDegrees){
+        double theta = Math.atan2(y, x);
+        double norm = get_norm();
+        double totalAngleRad = theta + Math.toRadians(angleDegrees);
+        return new Vec2D(norm * Math.cos(totalAngleRad), norm * Math.sin(totalAngleRad));
+    }
+
+
+    public String toString(){
+        return "vec(" + x + ", " + y + ")";
+    }
 }
