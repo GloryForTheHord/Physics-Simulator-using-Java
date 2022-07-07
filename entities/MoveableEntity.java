@@ -7,7 +7,6 @@ import utilities.Vec2D;
 
 public class MoveableEntity extends Entity{
 
-    private final double dt;
     private final double mass, bouncingFactor;
     private       Vec2D  positionPrev;
     private       Vec2D  resultingForce;
@@ -15,7 +14,6 @@ public class MoveableEntity extends Entity{
 
     public MoveableEntity(String colorTag, double x, double y, int radius, double vx, double vy, double dt, double mass, double charge, double bouncingFactor){
         super(colorTag, x, y, radius, charge);
-        this.dt = dt;
         this.mass = mass;
         if(mass <= 0){ throw new AssertionError("mass should be strictly greater than 0"); }
         if(bouncingFactor < 0 || bouncingFactor > 1){ throw new AssertionError("bouncing factor should be in [0; 1]"); }
@@ -25,7 +23,7 @@ public class MoveableEntity extends Entity{
     }
 
 
-    public Vec2D get_velocity(){
+    public Vec2D get_velocity(double dt){
         return position.subtract(positionPrev).scale(1/dt).add(resultingForce.scale(dt/2/mass)); // (pos - posPrev)/dt + F/(2m) *dt
     }
 
@@ -55,7 +53,7 @@ public class MoveableEntity extends Entity{
     }
 
 
-    public void update(){
+    public void update(double dt){
         Vec2D positionNext = position.scale(2).subtract(positionPrev).add(resultingForce.scale(dt*dt/mass)); // posNext = 2*pos - posPrev + F/m *dt^2
         positionPrev = position;
         position = positionNext;

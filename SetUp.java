@@ -11,6 +11,7 @@ public class SetUp {
 
     private Vector<Entity> entityVector;
     private Renderer       renderer;
+    private final double   dt;
     
     private Vec2D          gravityField = new Vec2D(0, 0);
 
@@ -19,14 +20,15 @@ public class SetUp {
 
     private double         gravityConstant = 0.0;
     private double         centralGravityX, centralGravityY;
-    private final int      centerRadius = 4;
+    private final int      centerRadius = 5;
 
     private String         outputFile = null; // Give the possibility to store the results for better fluidity
 
     
-    public SetUp(Renderer renderer){
+    public SetUp(Renderer renderer, double dt, int subComputations){
         entityVector = new Vector<Entity>();
         this.renderer = renderer;
+        this.dt = dt/(double)subComputations;
     }
 
 
@@ -45,6 +47,10 @@ public class SetUp {
 
     public void update_renderer(){
         renderer.repaint();
+        if(renderer.mouse_is_pressed()){
+            Vec2D mousePosition = renderer.get_mouse_position();
+            add_entity(new MoveableEntity("0x000000", (double) mousePosition.get_x(), (double) mousePosition.get_y(), 3*centerRadius, 0, 0, dt, 1, 0, 1));
+        }
     }
 
     
@@ -58,7 +64,7 @@ public class SetUp {
 
                 MoveableEntity moveableEntity = (MoveableEntity) entity;
                 apply_gravity_field(moveableEntity);
-                moveableEntity.update();
+                moveableEntity.update(dt);
 
                 for(int j = 0; j < i; j++){ //* Naive approach, should use trees
 
@@ -144,7 +150,7 @@ public class SetUp {
                 entity1.collide_on_surface(collisionPosition, normal);
                 return;
             }
-
+                
             MoveableEntity moveableEntity2 = (MoveableEntity) entity2;
 
             double mass1 = entity1.get_mass(), mass2 = moveableEntity2.get_mass();
@@ -177,9 +183,13 @@ public class SetUp {
                 ds1New = normal.scale(ds1NormalNew).add(tangent.scale(ds1Tangent));
                 ds2New = normal.scale(ds2NormalNew).add(tangent.scale(ds2Tangent));
             }
+
+            Vec2D displacement = vector_between_centers(entity1, entity2).get_normalized().scale(distance_between_edges(entity1, entity2));
             
-            entity1.set_positionPrev(entity1.get_position().subtract(ds1New));
-            moveableEntity2.set_positionPrev(moveableEntity2.get_position().subtract(ds2New));
+            entity1.set_positionPrev(entity1.get_position().add(displacement.scale(mass2/(mass1+mass2))));
+            entity1.set_position(entity1.get_position().add(ds1New).add(displacement.scale(mass2/(mass1+mass2))));
+            moveableEntity2.set_positionPrev(moveableEntity2.get_position().subtract(displacement.scale(mass1/(mass1+mass2))));
+            moveableEntity2.set_position(moveableEntity2.get_position().add(ds2New).subtract(displacement.scale(mass1/(mass1+mass2))));
         }
     }
 
@@ -194,12 +204,25 @@ public class SetUp {
     }
 
 
-    public void set_central_gravity_field(double x, double y, double gravityConstant){
+    public void set_centralGravityField(double x, double y, double gravityConstant){
         this.gravityConstant = gravityConstant;
         centralGravityX = x;
         centralGravityY = y;
         Entity center = new Entity("0x000000", x, y, centerRadius, 0);
         entityVector.insertElementAt(center, 0);
         renderer.add_entity(center);
+    }
+
+
+    public double get_mechanical_energy(){
+        double mechanicalEnergy = 0.0;
+        for(Entity entity : entityVector){
+            if(entity instanceof MoveableEntity){
+                MoveableEntity moveableEntity = (MoveableEntity)entity;
+                mechanicalEnergy += - moveableEntity.get_mass() * gravityField.dot(moveableEntity.get_position());
+                mechanicalEnergy += 0.5 * moveableEntity.get_mass() * moveableEntity.get_velocity(dt).get_norm() * moveableEntity.get_velocity(dt).get_norm();
+            }
+        }
+        return mechanicalEnergy;
     }
 }
